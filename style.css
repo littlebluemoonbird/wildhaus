@@ -20,7 +20,7 @@ html, body {
   overflow: hidden;
 }
 
-/* base shingle */
+/* base shingle with vertical grain */
 .shingle {
   position: relative;
   background:
@@ -40,7 +40,7 @@ html, body {
   transition: transform 0.3s ease, background 0.3s ease;
 }
 
-/* subtle per-tile tone variation */
+/* subtle per-tile variation */
 .shingle:nth-child(3n) {
   background:
     repeating-linear-gradient(
@@ -89,7 +89,7 @@ html, body {
   margin-top: calc(-1 * var(--overlap));
 }
 .facade > .shingle:nth-child(-n + 10) {
-  margin-top: 0; /* first row */
+  margin-top: 0; /* first row has no overlap */
 }
 
 /* stagger every other row horizontally */
@@ -103,7 +103,7 @@ html, body {
   transform: translateX(calc(var(--tile-w) / 2));
 }
 
-/* interactive page shingles */
+/* hover effect for 'page' shingles */
 .shingle.page:hover {
   transform: translateX(calc(var(--tile-w) / 2)) translateY(5px) rotateZ(-3deg);
   z-index: 2;
