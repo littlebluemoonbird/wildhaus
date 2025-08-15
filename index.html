@@ -1,30 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Pattern Test</title>
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    background-color: #8B5A2B; /* solid brown */
-  }
-
-  .pattern {
-    width: 100%;
-    height: 3000px; /* long vertical space */
-    background: repeating-linear-gradient(
-      0deg,
-      #8B5A2B,
-      #8B5A2B 50px,
-      #7A4E26 50px,
-      #7A4E26 100px
-    );
-  }
-</style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Klanghaus Facade</title>
+<link rel="stylesheet" href="style.css?v=12" />
 </head>
 <body>
-  <div class="pattern"></div>
+  <div class="facade"></div>
+
+  <script>
+    const cols = 5, rows = 8, total = cols * rows;
+    const fac = document.querySelector('.facade');
+    fac.style.setProperty('--cols', cols);
+    fac.style.setProperty('--rows', rows);
+
+    for (let i = 0; i < total; i++) {
+      const r = Math.floor(i / cols);
+      const c = i % cols;
+
+      const t = document.createElement('div');
+      t.className = 'shingle';
+      if ((r + c) % 2 === 0) t.classList.add('pull'); // half pull
+
+      // stacking: higher rows above lower rows; within a row, right beats left
+      const baseZ = (rows - r) * 1000 + c; // 1000 gap keeps row order unbroken
+      t.style.zIndex = baseZ;
+      t.style.setProperty('--stagger', r % 2 ? '50%' : '0'); // even stagger
+      t.dataset.basez = baseZ;
+
+      t.addEventListener('mouseenter', () => t.style.zIndex = baseZ + 100); // above same row only
+      t.addEventListener('mouseleave', () => t.style.zIndex = baseZ);
+
+      fac.appendChild(t);
+    }
+  </script>
 </body>
 </html>
