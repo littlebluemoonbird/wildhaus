@@ -1,85 +1,123 @@
-/* Abstract shingle calendar — tall, opaque tiles; hover pulls toward 7 o’clock */
-
-:root{
-  --tile-w:120px;
-  --tile-h:240px;         /* long vertical rectangle */
-  --overlap:28px;         /* row overlap amount */
-  --lift-x:-12px;         /* left */
-  --lift-y:12px;          /* down */
-  --tilt-z:-4deg;         /* slight counter-clockwise */
-  --tilt-x:8deg;          /* slight lift */
-  --tile-bg:#d0b088;      /* opaque tile color */
+:root {
+  --tile-w: 120px;     /* shingle width */
+  --tile-h: 240px;     /* shingle height */
+  --overlap: 40px;     /* vertical overlap */
 }
 
-body{font-family:sans-serif;background:#f5f5f5;color:#222;display:flex;flex-direction:column;align-items:center}
-h1{margin:20px 0}
-
-.calendar{
-  display:grid;
-  grid-template-columns:repeat(7,var(--tile-w));
-  grid-auto-rows:var(--tile-h);
-  gap:0;
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #f5f5f5;
 }
 
-/* base cell */
-.day{
-  position:relative;
-  perspective:800px;
-  transform-style:preserve-3d;
-  overflow:visible;
+.facade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, var(--tile-w));
+  grid-auto-rows: var(--tile-h);
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
 }
 
-/* create shingle overlap (all rows after the first) */
-.calendar>.day{ margin-top:calc(var(--overlap) * -1); }
-.calendar>.day:nth-child(-n+7){ margin-top:0; } /* first row */
-
-/* ignore empty placeholders */
-.day.empty{ pointer-events:none; }
-
-/* tile faces */
-.front,.inside{
-  position:absolute; inset:0;
-  display:flex; align-items:center; justify-content:center;
-  backface-visibility:hidden;
-  transition:transform .45s ease, opacity .3s ease, box-shadow .3s ease;
-  box-shadow:0 1px 0 rgba(0,0,0,.1) inset; /* bottom seam line */
+/* base shingle */
+.shingle {
+  position: relative;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06) 0px,
+      rgba(255, 255, 255, 0.06) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(35, 35%, 70%) 0%,
+      hsl(35, 35%, 65%) 100%
+    );
+  box-shadow: inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, background 0.3s ease;
 }
 
-/* opaque tile (no numbers) */
-.front{
-  background:var(--tile-bg);
+/* subtle per-tile tone variation */
+.shingle:nth-child(3n) {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.06) 0px,
+      rgba(255, 255, 255, 0.06) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(35, 30%, 68%) 0%,
+      hsl(35, 30%, 63%) 100%
+    );
+}
+.shingle:nth-child(4n) {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.05) 0px,
+      rgba(255, 255, 255, 0.05) 3px,
+      transparent 3px,
+      transparent 7px
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(35, 25%, 72%) 0%,
+      hsl(35, 25%, 66%) 100%
+    );
 }
 
-/* subtle top overlap shadow band */
-.front::after{
-  content:"";
-  position:absolute; left:0; right:0; top:calc(-1 * var(--overlap));
-  height:var(--overlap);
-  background:linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,0));
-  pointer-events:none;
+/* top shadow for overlap illusion */
+.shingle::before {
+  content: "";
+  position: absolute;
+  top: calc(-1 * var(--overlap));
+  left: 0;
+  right: 0;
+  height: var(--overlap);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0));
+  pointer-events: none;
 }
 
-/* inside content stays flat under tile */
-.inside{
-  background:#fff;      /* opaque */
-  opacity:0;
-  transform:translate(-2px,2px);
-  padding:8px;
+/* vertical overlap */
+.shingle {
+  margin-top: calc(-1 * var(--overlap));
+}
+.facade > .shingle:nth-child(-n + 10) {
+  margin-top: 0; /* first row */
 }
 
-/* hinge and pull direction = 7 o’clock */
-.front,.inside{ transform-origin: top right; }
-
-.day:hover{ z-index:2; }
-.day:hover .front{
-  transform:
-    translate(var(--lift-x),var(--lift-y))
-    rotateZ(var(--tilt-z))
-    rotateX(var(--tilt-x));
-  box-shadow:
-    0 10px 18px rgba(0,0,0,.15),
-    0 2px 0 rgba(0,0,0,.15) inset;
+/* stagger every other row horizontally */
+.facade > .shingle:nth-child(14n+8),
+.facade > .shingle:nth-child(14n+9),
+.facade > .shingle:nth-child(14n+10),
+.facade > .shingle:nth-child(14n+11),
+.facade > .shingle:nth-child(14n+12),
+.facade > .shingle:nth-child(14n+13),
+.facade > .shingle:nth-child(14n+14) {
+  transform: translateX(calc(var(--tile-w) / 2));
 }
-.day:hover .inside{
-  opacity:1;
+
+/* interactive page shingles */
+.shingle.page:hover {
+  transform: translateX(calc(var(--tile-w) / 2)) translateY(5px) rotateZ(-3deg);
+  z-index: 2;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.08) 0px,
+      rgba(255, 255, 255, 0.08) 2px,
+      transparent 2px,
+      transparent 6px
+    ),
+    linear-gradient(
+      to bottom,
+      hsl(30, 40%, 72%) 0%,
+      hsl(30, 40%, 67%) 100%
+    );
 }
