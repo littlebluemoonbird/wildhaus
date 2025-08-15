@@ -14,73 +14,58 @@ h1 {
 .calendar {
   display: grid;
   grid-template-columns: repeat(7, 120px);
-  grid-auto-rows: 120px;
-  gap: 0; /* Borders will create the lines */
+  grid-auto-rows: 100px;
+  gap: 0;
 }
 
+/* 각 칸 기본 구조 */
 .day {
   position: relative;
-  background: white;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-  overflow: hidden;
-}
-
-.day::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  padding: 2px; /* Border thickness */
-  background: linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet);
-  background-size: 400% 400%;
-  animation: rainbow 5s linear infinite;
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-          mask-composite: exclude;
-}
-
-@keyframes rainbow {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 100% 50%; }
+  perspective: 600px; /* 호버 시 3D 회전 */
 }
 
 .day.empty {
   background: transparent;
-  border: none;
 }
 
 .front, .inside {
   position: absolute;
   width: 100%;
   height: 100%;
+  backface-visibility: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: opacity 0.4s ease;
+  transition: transform 0.5s ease, opacity 0.4s ease;
+  border: 1px solid #d4a373; /* 테두리 */
 }
 
+/* 앞면 - 나무 텍스처 */
 .front {
+  background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Wood_texture.jpg/640px-Wood_texture.jpg');
+  background-size: cover;
+  background-position: center;
   font-size: 20px;
   font-weight: bold;
-  opacity: 1;
-  z-index: 1;
+  color: #3e2f1c;
 }
 
+/* 뒷면 - 내용 */
 .inside {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.95);
+  transform: rotateX(-90deg);
   opacity: 0;
   text-align: center;
-  padding: 10px;
-  font-size: 14px;
-  z-index: 1;
+  padding: 8px;
 }
 
+/* 호버 시 효과 */
 .day:hover .front {
+  transform: rotateX(90deg);
   opacity: 0;
 }
 
 .day:hover .inside {
+  transform: rotateX(0deg);
   opacity: 1;
 }
