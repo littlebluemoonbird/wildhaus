@@ -4,21 +4,24 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Klanghaus Facade</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=7">
 </head>
 <body>
 <div class="facade"></div>
 
 <script>
-  const facade = document.querySelector('.facade');
-  const cols = 5;   // number of columns
-  const rows = 8;   // number of rows
+  const cols = 5;  // columns
+  const rows = 8;  // rows
   const total = cols * rows;
+
+  const facade = document.querySelector('.facade');
+  facade.style.setProperty('--cols', cols);
+  facade.style.setProperty('--rows', rows);
 
   for (let i = 0; i < total; i++) {
     const tile = document.createElement('div');
     tile.className = 'shingle';
-    if (i % 2 === 0) tile.classList.add('pull'); // half will pull on hover
+    if (i % 2 === 0) tile.classList.add('pull'); // 50% pullable
     facade.appendChild(tile);
   }
 </script>
