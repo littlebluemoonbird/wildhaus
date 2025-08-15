@@ -1,50 +1,76 @@
-:root{
-  --w:clamp(90px,10vw,140px);
-  --h:calc(var(--w)*1.9);
-  --ov:38px;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
-html,body{margin:0;height:100%}
-.facade{
-  display:grid;
-  grid-template-columns:repeat(7,var(--w));
-  grid-auto-rows:var(--h);
-  min-height:100vh;
+
+body {
+  background: #eee;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
-.shingle{
-  position:relative;margin-top:calc(-1*var(--ov));
-  background:
-    /* fine grain */
-    repeating-linear-gradient(90deg,rgba(255,255,255,.06)0 2px,transparent 2px 6px),
-    /* broad bands */
-    repeating-linear-gradient(90deg,rgba(0,0,0,.05)0 24px,transparent 24px 48px),
-    /* tone */
-    linear-gradient(#d8b98b,#caa878);
-  box-shadow:inset 0 -1px 0 rgba(0,0,0,.12);
-  transition:transform .35s ease,box-shadow .35s ease,filter .35s ease;
-  transform-origin:top right;
+
+.facade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(60px, 1fr));
+  grid-auto-rows: 140px;
+  gap: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 }
-/* first row has no overlap */
-.facade>.shingle:nth-child(-n+7){margin-top:0}
-/* stagger every other row (rows 2,4,6,…) */
-.facade>.shingle:nth-child(14n+8),
-.facade>.shingle:nth-child(14n+9),
-.facade>.shingle:nth-child(14n+10),
-.facade>.shingle:nth-child(14n+11),
-.facade>.shingle:nth-child(14n+12),
-.facade>.shingle:nth-child(14n+13),
-.facade>.shingle:nth-child(14n+14){transform:translateX(calc(var(--w)/2))}
-/* top overlap shadow */
-.shingle::before{
-  content:"";position:absolute;left:0;right:0;top:calc(-1*var(--ov));
-  height:var(--ov);background:linear-gradient(to bottom,rgba(0,0,0,.18),transparent);
-  pointer-events:none;
+
+.shingle {
+  background: linear-gradient(
+    to bottom,
+    hsl(30, 40%, 70%) 0%,
+    hsl(30, 30%, 60%) 100%
+  );
+  background-size: cover;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 -4px 6px rgba(0, 0, 0, 0.2);
+  transform: translateY(-20px);
+  position: relative;
 }
-/* slight per-tile tone variation */
-.shingle:nth-child(3n){filter:brightness(.98)}
-.shingle:nth-child(4n){filter:brightness(1.03)}
-/* HALF pull out on hover: odd tiles only */
-.shingle:nth-child(odd):hover{
-  transform:translateX(-12px) translateY(12px) rotateZ(-4deg) rotateX(8deg);
-  box-shadow:0 10px 20px rgba(0,0,0,.18), inset 0 -1px 0 rgba(0,0,0,.2);
-  z-index:2;
+
+/* Vertical grain lines */
+.shingle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.05) 0px,
+    rgba(0, 0, 0, 0.05) 1px,
+    transparent 2px
+  );
+  mix-blend-mode: overlay;
+}
+
+/* Overlap rows */
+.shingle {
+  margin-top: -40px;
+}
+.shingle:nth-child(-n+15) {
+  margin-top: 0;
+}
+
+/* Hover pull for selected shingles */
+.shingle.pull:hover {
+  transform: rotate(-3deg) translate(-10px, 5px);
+  z-index: 2;
+  transition: transform 0.3s ease;
+}
+
+/* Slight random hue shift for variation */
+.shingle:nth-child(3n) {
+  filter: hue-rotate(5deg);
+}
+.shingle:nth-child(4n) {
+  filter: hue-rotate(-5deg);
+}
+.shingle:nth-child(5n) {
+  filter: brightness(1.1);
 }
