@@ -1,35 +1,85 @@
+/* Abstract shingle calendar — tall, opaque tiles; hover pulls toward 7 o’clock */
+
+:root{
+  --tile-w:120px;
+  --tile-h:240px;         /* long vertical rectangle */
+  --overlap:28px;         /* row overlap amount */
+  --lift-x:-12px;         /* left */
+  --lift-y:12px;          /* down */
+  --tilt-z:-4deg;         /* slight counter-clockwise */
+  --tilt-x:8deg;          /* slight lift */
+  --tile-bg:#d0b088;      /* opaque tile color */
+}
+
 body{font-family:sans-serif;background:#f5f5f5;color:#222;display:flex;flex-direction:column;align-items:center}
 h1{margin:20px 0}
 
-/* 7 cols; tall tiles (vertical rectangles) */
-.calendar{display:grid;grid-template-columns:repeat(7,120px);grid-auto-rows:170px;gap:0}
-.day{position:relative;perspective:600px;overflow:visible}
-.day.empty{pointer-events:none}
+.calendar{
+  display:grid;
+  grid-template-columns:repeat(7,var(--tile-w));
+  grid-auto-rows:var(--tile-h);
+  gap:0;
+}
 
-/* overlap rows (all but first row) for shingle feel */
-.calendar>.day{margin-top:-28px}
-.calendar>.day:nth-child(-n+7){margin-top:0}
+/* base cell */
+.day{
+  position:relative;
+  perspective:800px;
+  transform-style:preserve-3d;
+  overflow:visible;
+}
 
-/* front = wood tile, opaque; inside = white reveal */
+/* create shingle overlap (all rows after the first) */
+.calendar>.day{ margin-top:calc(var(--overlap) * -1); }
+.calendar>.day:nth-child(-n+7){ margin-top:0; } /* first row */
+
+/* ignore empty placeholders */
+.day.empty{ pointer-events:none; }
+
+/* tile faces */
 .front,.inside{
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  transition:transform .4s ease,opacity .3s ease;backface-visibility:hidden;
-  box-shadow:0 1px 0 rgba(0,0,0,.08) inset;
+  position:absolute; inset:0;
+  display:flex; align-items:center; justify-content:center;
+  backface-visibility:hidden;
+  transition:transform .45s ease, opacity .3s ease, box-shadow .3s ease;
+  box-shadow:0 1px 0 rgba(0,0,0,.1) inset; /* bottom seam line */
 }
+
+/* opaque tile (no numbers) */
 .front{
-  background:#d9b184 url('your-wood-texture.jpg') center/cover no-repeat;
+  background:var(--tile-bg);
 }
-/* top overlap shadow band */
+
+/* subtle top overlap shadow band */
 .front::after{
-  content:"";position:absolute;left:0;right:0;top:-28px;height:28px;
-  background:linear-gradient(to bottom,rgba(0,0,0,.16),rgba(0,0,0,0));
+  content:"";
+  position:absolute; left:0; right:0; top:calc(-1 * var(--overlap));
+  height:var(--overlap);
+  background:linear-gradient(to bottom, rgba(0,0,0,.18), rgba(0,0,0,0));
   pointer-events:none;
 }
+
+/* inside content stays flat under tile */
 .inside{
-  background:#fff;opacity:0;transform:rotateX(-90deg);
+  background:#fff;      /* opaque */
+  opacity:0;
+  transform:translate(-2px,2px);
+  padding:8px;
 }
 
-/* hover reveal */
-.day:hover{z-index:2}
-.day:hover .front{transform:rotateX(12deg)}
-.day:hover .inside{opacity:1;transform:rotateX(0)}
+/* hinge and pull direction = 7 o’clock */
+.front,.inside{ transform-origin: top right; }
+
+.day:hover{ z-index:2; }
+.day:hover .front{
+  transform:
+    translate(var(--lift-x),var(--lift-y))
+    rotateZ(var(--tilt-z))
+    rotateX(var(--tilt-x));
+  box-shadow:
+    0 10px 18px rgba(0,0,0,.15),
+    0 2px 0 rgba(0,0,0,.15) inset;
+}
+.day:hover .inside{
+  opacity:1;
+}
