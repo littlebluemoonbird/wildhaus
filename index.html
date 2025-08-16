@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="style.css">
   <style>
     :root {
-      --cols: 18;
+      --cols: 15;
       --rows: 9;
-      --tile-width: 5.56vw;
-      --tile-height: 18vh;
-      --v-ov: 36px;
+      --tile-width: 6.66vw;
+      --tile-height: 16vh;
+      --v-ov: 12px;
     }
 
     html, body {
@@ -44,8 +44,8 @@
         0% 0%,
         100% 0%,
         100% calc(100% - 6px),
-        95% 100%,
-        5% 100%,
+        96% 100%,
+        4% 100%,
         0% calc(100% - 6px)
       );
     }
@@ -67,15 +67,17 @@
       inset: 0;
       background-image:
         repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0 1px, transparent 1px 2px),
-        repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 3px);
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 3px),
+        url('https://grainy-gradients.vercel.app/noise.svg');
+      background-size: cover;
       mix-blend-mode: multiply;
-      opacity: 0.1;
+      opacity: 0.12;
       pointer-events: none;
     }
 
     .shingle.pull:hover {
-      transform: translateY(-8px) translateX(-5px) rotateZ(-2.5deg);
-      box-shadow: 0 18px 30px rgba(0,0,0,0.2);
+      transform: translateY(-10px) translateX(-10px) rotateZ(-3deg);
+      box-shadow: 0 20px 32px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -100,7 +102,7 @@
         if (Math.random() < 0.25) tile.classList.add('pull');
 
         const randomShiftX = Math.random() * 4 - 2;
-        const randomShiftY = Math.random() * 3 - 1.5;
+        const randomShiftY = Math.random() * 2 - 1;
         const left = c * tileWidth + stagger + randomShiftX;
         const top = r * (tileHeight + verticalShift) + randomShiftY;
 
@@ -108,7 +110,7 @@
         tile.style.top = `${top}px`;
         tile.style.zIndex = (rows - r) * 1000 + c;
 
-        const toneTop = 60 + Math.random() * 18;
+        const toneTop = 58 + Math.random() * 22;
         const toneBot = toneTop - (4 + Math.random() * 4);
 
         tile.style.background = `
