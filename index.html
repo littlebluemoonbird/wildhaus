@@ -4,34 +4,23 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Klanghaus Facade</title>
-<link rel="stylesheet" href="style.css?v=12" />
+<link rel="stylesheet" href="style.css?v=14" />
 </head>
 <body>
   <div class="facade"></div>
 
   <script>
-    const cols = 5, rows = 8, total = cols * rows;
-    const fac = document.querySelector('.facade');
+    const cols = 5, rows = 4, fac = document.querySelector('.facade');
     fac.style.setProperty('--cols', cols);
     fac.style.setProperty('--rows', rows);
 
-    for (let i = 0; i < total; i++) {
-      const r = Math.floor(i / cols);
-      const c = i % cols;
-
+    for (let i = 0; i < cols * rows; i++) {
+      const r = Math.floor(i / cols), c = i % cols;
       const t = document.createElement('div');
       t.className = 'shingle';
-      if ((r + c) % 2 === 0) t.classList.add('pull'); // half pull
-
-      // stacking: higher rows above lower rows; within a row, right beats left
-      const baseZ = (rows - r) * 1000 + c; // 1000 gap keeps row order unbroken
-      t.style.zIndex = baseZ;
-      t.style.setProperty('--stagger', r % 2 ? '50%' : '0'); // even stagger
-      t.dataset.basez = baseZ;
-
-      t.addEventListener('mouseenter', () => t.style.zIndex = baseZ + 100); // above same row only
-      t.addEventListener('mouseleave', () => t.style.zIndex = baseZ);
-
+      if ((r + c) % 2 === 0) t.classList.add('pull');     // half pullable
+      t.style.setProperty('--stagger', r % 2 ? '50%' : '0');
+      t.style.zIndex = (rows - r) * 1000 + (c + 1);       // row above row; right over left
       fac.appendChild(t);
     }
   </script>
