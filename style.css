@@ -1,56 +1,49 @@
-:root{
-  --cols:5; --rows:8;
-  --h-ov:22px;        /* tuck under right neighbor */
-  --v-ov:28px;        /* vertical overlap */
-}
+:root{ --cols:5; --rows:4; --h-ov:26px; --v-ov:28px; }
 
-/* full viewport grid */
-html,body{margin:0;height:100%;background:#eee}
+html,body{ margin:0; height:100%; background:#eee; }
+
+/* full viewport, no right gap */
 .facade{
-  display:grid;
-  grid-template-columns:repeat(var(--cols),1fr);
+  display:grid; width:100vw; height:100vh; overflow:hidden;
+  padding-right:var(--h-ov);
+  grid-template-columns:repeat(var(--cols),
+    calc((100vw + var(--h-ov)*(var(--cols)-1))/var(--cols)));
   grid-auto-rows:calc((100vh + var(--v-ov)*(var(--rows)-1))/var(--rows));
-  width:100vw;height:100vh;overflow:hidden;
 }
 
-/* shingle */
+/* shingle tile */
 .shingle{
   position:relative; height:100%;
-  width:calc(100% + var(--h-ov));           /* extends under right tile */
-  margin-top:calc(-1 * var(--v-ov));        /* under row above */
+  width:calc(100% + var(--h-ov));            /* tuck under right neighbor */
+  margin-top:calc(-1 * var(--v-ov));         /* under row above */
   transform-origin:top right;
-  /* geometric wood tone */
+  transform:translateX(var(--stagger));      /* row stagger */
+  transition:transform .3s ease, box-shadow .3s ease;
+
+  /* solid + subtle grain (can keep solid by removing first layer) */
   background:
-    repeating-linear-gradient(90deg,rgba(255,255,255,.06) 0 2px,transparent 2px 6px),
-    repeating-linear-gradient(90deg,rgba(0,0,0,.04) 0 24px,transparent 24px 48px),
-    linear-gradient(#d6b689,#c6a272);
-  box-shadow:inset 0 -1px 0 rgba(0,0,0,.16);
-  /* base transform = row stagger + hover vars */
-  --dx:0; --dy:0; --rz:0deg; --rx:0deg;
-  transform:translateX(var(--stagger)) translate(var(--dx),var(--dy)) rotateZ(var(--rz)) rotateX(var(--rx));
-  transition:transform .35s ease, box-shadow .35s ease;
+    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 6px),
+    #c9a273;
+  box-shadow:inset 0 -1px 0 rgba(0,0,0,.18);
 }
 
-/* first row not overlapped */
+/* first row has no vertical overlap */
 .shingle:nth-child(-n + var(--cols)){ margin-top:0 }
 
-/* top shadow from the row above */
+/* shadow from the row above */
 .shingle::before{
   content:""; position:absolute; left:0; right:0; top:calc(-1 * var(--v-ov));
-  height:var(--v-ov);
-  background:linear-gradient(to bottom, rgba(0,0,0,.20), transparent);
+  height:var(--v-ov); background:linear-gradient(to bottom, rgba(0,0,0,.2), transparent);
   pointer-events:none;
 }
 
-/* column-based, geometric variation */
-.shingle:nth-child(5n+1){ filter:brightness(1.00) }
+/* gentle geometric variation so it’s not flat */
 .shingle:nth-child(5n+2){ filter:brightness(1.04) }
 .shingle:nth-child(5n+3){ filter:brightness(.97) }
 .shingle:nth-child(5n+4){ filter:saturate(1.05) }
-.shingle:nth-child(5n){   filter:brightness(1.08) }
 
-/* 7 o’clock pull for marked tiles only */
+/* 7 o’clock pull; remains under right tile due to z-index rule */
 .shingle.pull:hover{
-  --dx:-12px; --dy:12px; --rz:-4deg; --rx:6deg;
+  transform:translateX(var(--stagger)) translate(-12px,12px) rotateZ(-4deg) rotateX(6deg);
   box-shadow:0 12px 22px rgba(0,0,0,.18), inset 0 -1px 0 rgba(0,0,0,.22);
 }
