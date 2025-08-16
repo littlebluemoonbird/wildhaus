@@ -7,11 +7,11 @@
   <link rel="stylesheet" href="style.css">
   <style>
     :root {
-      --cols: 16;
-      --rows: 8;
-      --tile-width: 6.25vw;
+      --cols: 18;
+      --rows: 9;
+      --tile-width: 5.56vw;
       --tile-height: 18vh;
-      --v-ov: 24px;
+      --v-ov: 36px;
     }
 
     html, body {
@@ -37,16 +37,16 @@
         linear-gradient(hsl(35, 35%, 70%), hsl(35, 28%, 60%));
       box-shadow:
         inset 0 -1px 0 rgba(0, 0, 0, 0.2),
-        0 2px 6px rgba(0, 0, 0, 0.1);
+        0 3px 6px rgba(0, 0, 0, 0.12);
       transform-origin: top right;
       transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
       clip-path: polygon(
         0% 0%,
         100% 0%,
-        100% calc(100% - 4px),
+        100% calc(100% - 6px),
         95% 100%,
         5% 100%,
-        0% calc(100% - 4px)
+        0% calc(100% - 6px)
       );
     }
 
@@ -74,8 +74,8 @@
     }
 
     .shingle.pull:hover {
-      transform: translateY(-6px) translateX(-4px) rotateZ(-2deg);
-      box-shadow: 0 16px 28px rgba(0,0,0,0.2);
+      transform: translateY(-8px) translateX(-5px) rotateZ(-2.5deg);
+      box-shadow: 0 18px 30px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -91,25 +91,30 @@
     const tileHeight = window.innerHeight / rows;
 
     for (let r = 0; r < rows; r++) {
-      const stagger = (r % 2 === 1) ? tileWidth / 2 + Math.random() * 6 - 3 : 0;
-      for (let c = 0; c < cols; c++) {
+      const verticalShift = -parseInt(getComputedStyle(document.documentElement).getPropertyValue('--v-ov'));
+      const stagger = (r % 2 === 1) ? tileWidth / 2 : 0;
+
+      for (let c = -1; c < cols + 1; c++) {
         const tile = document.createElement('div');
         tile.className = 'shingle';
         if (Math.random() < 0.25) tile.classList.add('pull');
 
-        const left = c * tileWidth + stagger;
-        const top = r * (tileHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--v-ov')));
+        const randomShiftX = Math.random() * 4 - 2;
+        const randomShiftY = Math.random() * 3 - 1.5;
+        const left = c * tileWidth + stagger + randomShiftX;
+        const top = r * (tileHeight + verticalShift) + randomShiftY;
 
         tile.style.left = `${left}px`;
         tile.style.top = `${top}px`;
         tile.style.zIndex = (rows - r) * 1000 + c;
 
-        const toneTop = 65 + Math.random() * 10;
-        const toneBot = toneTop - 6;
+        const toneTop = 60 + Math.random() * 18;
+        const toneBot = toneTop - (4 + Math.random() * 4);
+
         tile.style.background = `
-          repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 6px),
-          radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.06) 0 40%, transparent 60%),
-          linear-gradient(hsl(35, 35%, ${toneTop}%), hsl(35, 28%, ${toneBot}%))`;
+          repeating-linear-gradient(90deg, rgba(255,255,255,0.03) 0 2px, transparent 2px 6px),
+          radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.05) 0 40%, transparent 60%),
+          linear-gradient(hsl(35, 36%, ${toneTop}%), hsl(35, 27%, ${toneBot}%))`;
 
         facade.appendChild(tile);
       }
