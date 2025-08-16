@@ -1,49 +1,83 @@
-:root{ --cols:5; --rows:4; --h-ov:26px; --v-ov:28px; }
+:root{
+  --cols:5; --rows:7;
+  --h-ov:26px;         /* tuck under right neighbor */
+  --v-ov:28px;         /* vertical overlap */
+}
 
-html,body{ margin:0; height:100%; background:#eee; }
+html,body{margin:0;height:100%;background:#ecebe7}
 
-/* full viewport, no right gap */
+/* full viewport; kill right gap by padding equal to horizontal overlap */
 .facade{
-  display:grid; width:100vw; height:100vh; overflow:hidden;
-  padding-right:var(--h-ov);
+  width:100vw;height:100vh;overflow:hidden;padding-right:var(--h-ov);
+  display:grid;
   grid-template-columns:repeat(var(--cols),
     calc((100vw + var(--h-ov)*(var(--cols)-1))/var(--cols)));
   grid-auto-rows:calc((100vh + var(--v-ov)*(var(--rows)-1))/var(--rows));
 }
 
-/* shingle tile */
+/* SHINGLE */
 .shingle{
-  position:relative; height:100%;
-  width:calc(100% + var(--h-ov));            /* tuck under right neighbor */
-  margin-top:calc(-1 * var(--v-ov));         /* under row above */
+  position:relative;height:100%;
+  width:calc(100% + var(--h-ov));            /* slides under tile to the right */
+  margin-top:calc(-1 * var(--v-ov));         /* sits beneath row above */
   transform-origin:top right;
-  transform:translateX(var(--stagger));      /* row stagger */
-  transition:transform .3s ease, box-shadow .3s ease;
 
-  /* solid + subtle grain (can keep solid by removing first layer) */
-  background:
-    repeating-linear-gradient(90deg, rgba(255,255,255,.05) 0 2px, transparent 2px 6px),
-    #c9a273;
-  box-shadow:inset 0 -1px 0 rgba(0,0,0,.18);
+  /* per-row stagger injected via --row */
+  --stagger: var(--stagger-row-0);
+  transform: translateX(var(--stagger));
 }
+.shingle[style*="--row: 1"]{ --stagger: var(--stagger-row-1) }
+.shingle[style*="--row: 2"]{ --stagger: var(--stagger-row-2) }
+.shingle[style*="--row: 3"]{ --stagger: var(--stagger-row-3) }
+.shingle[style*="--row: 4"]{ --stagger: var(--stagger-row-4) }
+.shingle[style*="--row: 5"]{ --stagger: var(--stagger-row-5) }
+.shingle[style*="--row: 6"]{ --stagger: var(--stagger-row-6) }
 
-/* first row has no vertical overlap */
+/* first row no overlap */
 .shingle:nth-child(-n + var(--cols)){ margin-top:0 }
 
-/* shadow from the row above */
+/* MATERIAL: layered gradients (no images) */
+.shingle{
+  background:
+    /* fine vertical grain */
+    repeating-linear-gradient(90deg, #ffffff14 0 2px, #00000000 2px 6px),
+    /* broad tonal bands */
+    repeating-linear-gradient(90deg, #0000000a 0 24px, #0000 24px 48px),
+    /* vignette for depth */
+    radial-gradient(120% 100% at 50% 0, #00000012 0 40%, #0000 60%),
+    /* top→bottom tone */
+    linear-gradient(var(--tone-top), var(--tone-bot));
+  box-shadow:
+    inset 0 -1px 0 rgba(0,0,0,.18);           /* bottom edge seam */
+  transition: transform .45s cubic-bezier(.2,.8,.2,1.2), box-shadow .35s ease;
+}
+
+/* ambient shadow from the row above */
 .shingle::before{
-  content:""; position:absolute; left:0; right:0; top:calc(-1 * var(--v-ov));
-  height:var(--v-ov); background:linear-gradient(to bottom, rgba(0,0,0,.2), transparent);
+  content:""; position:absolute; left:0; right:0; top:calc(-1*var(--v-ov));
+  height:var(--v-ov);
+  background:linear-gradient(to bottom, rgba(0,0,0,.24), rgba(0,0,0,0));
   pointer-events:none;
 }
 
-/* gentle geometric variation so it’s not flat */
-.shingle:nth-child(5n+2){ filter:brightness(1.04) }
-.shingle:nth-child(5n+3){ filter:brightness(.97) }
-.shingle:nth-child(5n+4){ filter:saturate(1.05) }
+/* subtle noise overlay */
+.shingle::after{
+  content:""; position:absolute; inset:0; pointer-events:none;
+  background-image:
+    repeating-linear-gradient(0deg,#0001 0 1px,#0000 1px 2px),
+    repeating-linear-gradient(90deg,#0002 0 1px,#0000 1px 3px);
+  mix-blend-mode:multiply; opacity:.15;
+}
 
-/* 7 o’clock pull; remains under right tile due to z-index rule */
+/* small geometric tone discipline by column */
+.shingle:nth-child(5n+1){ filter:brightness(1.00) }
+.shingle:nth-child(5n+2){ filter:brightness(1.04) }
+.shingle:nth-child(5n+3){ filter:brightness(.98) }
+.shingle:nth-child(5n+4){ filter:saturate(1.03) }
+.shingle:nth-child(5n){   filter:brightness(1.07) }
+
+/* INTERACTION: only .pull tiles move; springy ease; stays under right tile thanks to z-index scheme */
 .shingle.pull:hover{
-  transform:translateX(var(--stagger)) translate(-12px,12px) rotateZ(-4deg) rotateX(6deg);
-  box-shadow:0 12px 22px rgba(0,0,0,.18), inset 0 -1px 0 rgba(0,0,0,.22);
+  transform: translateX(var(--stagger)) translate(-12px,12px) rotateZ(-3.5deg) rotateX(6deg);
+  box-shadow: 0 14px 26px rgba(0,0,0,.18), inset 0 -1px 0 rgba(0,0,0,.22);
 }
