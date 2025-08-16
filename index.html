@@ -1,41 +1,98 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Klanghaus Facade</title>
-<link rel="stylesheet" href="style.css?v=20" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Klanghaus Shingle Grid</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root {
+      --cols: 5;
+      --rows: 7;
+      --tile-width: 20vw;
+      --tile-height: 15vh;
+      --h-ov: 0px;
+      --v-ov: 24px;
+    }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #ecebe7;
+      overflow: hidden;
+    }
+
+    .facade {
+      display: grid;
+      grid-template-columns: repeat(var(--cols), var(--tile-width));
+      grid-template-rows: repeat(var(--rows), calc(var(--tile-height) + var(--v-ov)));
+      position: relative;
+    }
+
+    .shingle {
+      width: calc(var(--tile-width) + var(--h-ov));
+      height: calc(var(--tile-height) + var(--v-ov));
+      margin-top: calc(-1 * var(--v-ov));
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 24px, transparent 24px 48px),
+        radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.1) 0 40%, transparent 60%),
+        linear-gradient(hsl(35, 35%, 68%), hsl(35, 28%, 60%));
+      box-shadow:
+        inset 0 -1px 0 rgba(0, 0, 0, 0.18),
+        0 2px 6px rgba(0, 0, 0, 0.08);
+      position: relative;
+      transform-origin: top right;
+      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+    }
+
+    .shingle::before {
+      content: "";
+      position: absolute;
+      top: calc(-1 * var(--v-ov));
+      left: 0;
+      right: 0;
+      height: var(--v-ov);
+      background: linear-gradient(to bottom, rgba(0,0,0,0.2), transparent);
+      pointer-events: none;
+    }
+
+    .shingle::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.01) 0 1px, transparent 1px 2px),
+        repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 3px);
+      mix-blend-mode: multiply;
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    .shingle.pull:hover {
+      transform: translate(-8px, 8px) rotateZ(-3deg);
+      z-index: 1000;
+      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+    }
+  </style>
 </head>
 <body>
   <div class="facade"></div>
 
   <script>
-    const cols = 5, rows = 7, fac = document.querySelector('.facade');
-    fac.style.setProperty('--cols', cols);
-    fac.style.setProperty('--rows', rows);
+    const facade = document.querySelector('.facade');
+    const cols = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cols'));
+    const rows = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--rows'));
 
     for (let r = 0; r < rows; r++) {
-      // 50% stagger with slight organic drift per row
-      const driftPx = (Math.random() * 14 - 7).toFixed(1); // -7..+7px
-      const base = r % 2 ? '50%' : '0%';
-      fac.style.setProperty(`--stagger-row-${r}`, `calc(${base} + ${driftPx}px)`);
+      const stagger = r % 2 === 0 ? '0px' : '50%';
       for (let c = 0; c < cols; c++) {
-        const t = document.createElement('div');
-        t.className = 'shingle';
-        // 1 in 4 interactive
-        if ((r * cols + c) % 4 === 0) t.classList.add('pull');
-
-        // tone variation per tile
-        const l1 = 68 + (Math.random() * 6 - 3); // 65..71
-        const l2 = l1 - 5 - Math.random() * 3;   // darker bottom
-        t.style.setProperty('--tone-top', `hsl(35 35% ${l1}%)`);
-        t.style.setProperty('--tone-bot', `hsl(35 28% ${l2}%)`);
-
-        // stacking: row above row; right over left
-        const z = (rows - r) * 1000 + (c + 1);
-        t.style.zIndex = z; t.dataset.basez = z;
-        t.style.setProperty('--row', r);
-        fac.appendChild(t);
+        const tile = document.createElement('div');
+        tile.className = 'shingle';
+        if ((r * cols + c) % 4 === 0) tile.classList.add('pull');
+        tile.style.zIndex = (rows - r) * 1000 + c;
+        tile.style.transform = `translateX(${stagger})`;
+        facade.appendChild(tile);
       }
     }
   </script>
