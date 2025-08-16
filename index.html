@@ -8,7 +8,7 @@
   <style>
     :root {
       --cols: 16;
-      --rows: 7;
+      --rows: 8;
       --tile-width: 6.25vw;
       --tile-height: 18vh;
       --v-ov: 24px;
@@ -40,6 +40,14 @@
         0 2px 6px rgba(0, 0, 0, 0.1);
       transform-origin: top right;
       transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      clip-path: polygon(
+        0% 0%,
+        100% 0%,
+        100% calc(100% - 4px),
+        95% 100%,
+        5% 100%,
+        0% calc(100% - 4px)
+      );
     }
 
     .shingle::before {
@@ -83,11 +91,11 @@
     const tileHeight = window.innerHeight / rows;
 
     for (let r = 0; r < rows; r++) {
-      const stagger = (r % 2 === 1) ? tileWidth / 2 + Math.random() * 8 - 4 : 0;
+      const stagger = (r % 2 === 1) ? tileWidth / 2 + Math.random() * 6 - 3 : 0;
       for (let c = 0; c < cols; c++) {
         const tile = document.createElement('div');
         tile.className = 'shingle';
-        if ((r * cols + c) % 4 === 0) tile.classList.add('pull');
+        if (Math.random() < 0.25) tile.classList.add('pull');
 
         const left = c * tileWidth + stagger;
         const top = r * (tileHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--v-ov')));
