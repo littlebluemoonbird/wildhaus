@@ -7,11 +7,10 @@
   <link rel="stylesheet" href="style.css">
   <style>
     :root {
-      --cols: 5;
+      --cols: 16;
       --rows: 7;
-      --tile-width: 20vw;
-      --tile-height: 15vh;
-      --h-ov: 0px;
+      --tile-width: 6.25vw;
+      --tile-height: 18vh;
       --v-ov: 24px;
     }
 
@@ -23,27 +22,24 @@
     }
 
     .facade {
-      display: grid;
-      grid-template-columns: repeat(var(--cols), var(--tile-width));
-      grid-template-rows: repeat(var(--rows), calc(var(--tile-height) + var(--v-ov)));
       position: relative;
+      width: 100vw;
+      height: 100vh;
     }
 
     .shingle {
-      width: calc(var(--tile-width) + var(--h-ov));
-      height: calc(var(--tile-height) + var(--v-ov));
-      margin-top: calc(-1 * var(--v-ov));
+      position: absolute;
+      width: var(--tile-width);
+      height: var(--tile-height);
       background:
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.05) 0 2px, transparent 2px 6px),
-        repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 24px, transparent 24px 48px),
-        radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.1) 0 40%, transparent 60%),
-        linear-gradient(hsl(35, 35%, 68%), hsl(35, 28%, 60%));
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 6px),
+        radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.06) 0 40%, transparent 60%),
+        linear-gradient(hsl(35, 35%, 70%), hsl(35, 28%, 60%));
       box-shadow:
-        inset 0 -1px 0 rgba(0, 0, 0, 0.18),
-        0 2px 6px rgba(0, 0, 0, 0.08);
-      position: relative;
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 2px 6px rgba(0, 0, 0, 0.1);
       transform-origin: top right;
-      transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1.2);
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
     }
 
     .shingle::before {
@@ -62,17 +58,16 @@
       position: absolute;
       inset: 0;
       background-image:
-        repeating-linear-gradient(0deg, rgba(0,0,0,0.01) 0 1px, transparent 1px 2px),
+        repeating-linear-gradient(0deg, rgba(0,0,0,0.015) 0 1px, transparent 1px 2px),
         repeating-linear-gradient(90deg, rgba(0,0,0,0.02) 0 1px, transparent 1px 3px);
       mix-blend-mode: multiply;
-      opacity: 0.15;
+      opacity: 0.1;
       pointer-events: none;
     }
 
     .shingle.pull:hover {
-      transform: translate(-8px, 8px) rotateZ(-3deg);
-      z-index: 1000;
-      box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+      transform: translateY(-6px) translateX(-4px) rotateZ(-2deg);
+      box-shadow: 0 16px 28px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -84,14 +79,30 @@
     const cols = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--cols'));
     const rows = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--rows'));
 
+    const tileWidth = window.innerWidth / cols;
+    const tileHeight = window.innerHeight / rows;
+
     for (let r = 0; r < rows; r++) {
-      const stagger = r % 2 === 0 ? '0px' : '50%';
+      const stagger = (r % 2 === 1) ? tileWidth / 2 + Math.random() * 8 - 4 : 0;
       for (let c = 0; c < cols; c++) {
         const tile = document.createElement('div');
         tile.className = 'shingle';
         if ((r * cols + c) % 4 === 0) tile.classList.add('pull');
+
+        const left = c * tileWidth + stagger;
+        const top = r * (tileHeight - parseInt(getComputedStyle(document.documentElement).getPropertyValue('--v-ov')));
+
+        tile.style.left = `${left}px`;
+        tile.style.top = `${top}px`;
         tile.style.zIndex = (rows - r) * 1000 + c;
-        tile.style.transform = `translateX(${stagger})`;
+
+        const toneTop = 65 + Math.random() * 10;
+        const toneBot = toneTop - 6;
+        tile.style.background = `
+          repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0 2px, transparent 2px 6px),
+          radial-gradient(120% 100% at 50% 0, rgba(0,0,0,0.06) 0 40%, transparent 60%),
+          linear-gradient(hsl(35, 35%, ${toneTop}%), hsl(35, 28%, ${toneBot}%))`;
+
         facade.appendChild(tile);
       }
     }
