@@ -4,24 +4,39 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Klanghaus Facade</title>
-<link rel="stylesheet" href="style.css?v=14" />
+<link rel="stylesheet" href="style.css?v=20" />
 </head>
 <body>
   <div class="facade"></div>
 
   <script>
-    const cols = 5, rows = 4, fac = document.querySelector('.facade');
+    const cols = 5, rows = 7, fac = document.querySelector('.facade');
     fac.style.setProperty('--cols', cols);
     fac.style.setProperty('--rows', rows);
 
-    for (let i = 0; i < cols * rows; i++) {
-      const r = Math.floor(i / cols), c = i % cols;
-      const t = document.createElement('div');
-      t.className = 'shingle';
-      if ((r + c) % 2 === 0) t.classList.add('pull');     // half pullable
-      t.style.setProperty('--stagger', r % 2 ? '50%' : '0');
-      t.style.zIndex = (rows - r) * 1000 + (c + 1);       // row above row; right over left
-      fac.appendChild(t);
+    for (let r = 0; r < rows; r++) {
+      // 50% stagger with slight organic drift per row
+      const driftPx = (Math.random() * 14 - 7).toFixed(1); // -7..+7px
+      const base = r % 2 ? '50%' : '0%';
+      fac.style.setProperty(`--stagger-row-${r}`, `calc(${base} + ${driftPx}px)`);
+      for (let c = 0; c < cols; c++) {
+        const t = document.createElement('div');
+        t.className = 'shingle';
+        // 1 in 4 interactive
+        if ((r * cols + c) % 4 === 0) t.classList.add('pull');
+
+        // tone variation per tile
+        const l1 = 68 + (Math.random() * 6 - 3); // 65..71
+        const l2 = l1 - 5 - Math.random() * 3;   // darker bottom
+        t.style.setProperty('--tone-top', `hsl(35 35% ${l1}%)`);
+        t.style.setProperty('--tone-bot', `hsl(35 28% ${l2}%)`);
+
+        // stacking: row above row; right over left
+        const z = (rows - r) * 1000 + (c + 1);
+        t.style.zIndex = z; t.dataset.basez = z;
+        t.style.setProperty('--row', r);
+        fac.appendChild(t);
+      }
     }
   </script>
 </body>
